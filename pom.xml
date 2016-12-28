@@ -12,10 +12,10 @@
         <servletapi.version>3.1.0</servletapi.version>
         <jspapi.version>2.2.1</jspapi.version>
         <hibernate.version>5.2.2.Final</hibernate.version>
+         <validationapi.version>1.1.0.Final</validationapi.version>
         <spring.data.version>1.10.2.RELEASE</spring.data.version>
         <mysql.version>5.1.6</mysql.version>
         <dbcp.version>1.4</dbcp.version>
-        <validationapi.version>1.1.0.Final</validationapi.version>
         <lombok.version>1.16.10</lombok.version>
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>

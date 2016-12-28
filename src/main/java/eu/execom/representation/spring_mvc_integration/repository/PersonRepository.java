@@ -6,6 +6,6 @@ import eu.execom.representation.spring_mvc_integration.entity.Person;
 
 public interface PersonRepository extends JpaRepository<Person, Long> {
 
-    Person findPersonBySSN(String SSN);
+    Person findBySSN(String SSN);
 
 }

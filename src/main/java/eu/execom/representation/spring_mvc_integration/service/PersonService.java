@@ -14,7 +14,7 @@ import eu.execom.representation.spring_mvc_integration.repository.PersonReposito
 public class PersonService {
 
     @Autowired
-    PersonRepository personRepository;
+    private PersonRepository personRepository;
 
     public List<PersonDTO> findAllPersons() {
 
@@ -25,7 +25,7 @@ public class PersonService {
     }
 
     public PersonDTO getPersonBySSN(String SSN) {
-        return new PersonDTO(personRepository.findPersonBySSN(SSN));
+        return new PersonDTO(personRepository.findBySSN(SSN));
     }
 
     public PersonDTO addPerson(PersonDTO personDTO) {
