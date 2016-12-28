@@ -1,4 +1,4 @@
-package eu.execom.representation.spring_mvc_integration.configuration;
+package eu.execom.labs.test_integration_showcase.configuration;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -10,9 +10,11 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 import org.springframework.web.servlet.view.JstlView;
 
+import eu.execom.labs.test_integration_showcase.controller.ControllerComponents;
+
 @Configuration
 @EnableWebMvc
-@ComponentScan(basePackages = "eu.execom.representation.spring_mvc_integration.controller")
+@ComponentScan(basePackageClasses = ControllerComponents.class)
 public class WebConfig extends WebMvcConfigurerAdapter {
 
     @Bean

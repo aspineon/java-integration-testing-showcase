@@ -1,4 +1,4 @@
-package eu.execom.representation.spring_mvc_integration.configuration;
+package eu.execom.labs.test_integration_showcase.configuration;
 
 import java.util.Properties;
 
@@ -13,10 +13,12 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
-@Configuration
-@EnableJpaRepositories(basePackages = "eu.execom.representation.spring_mvc_integration.repository")
-@PropertySource({"classpath:jdbc.properties"})
+import eu.execom.labs.test_integration_showcase.entity.EntityComponents;
+import eu.execom.labs.test_integration_showcase.repository.RepositoryComponents;
 
+@Configuration
+@EnableJpaRepositories(basePackageClasses = RepositoryComponents.class)
+@PropertySource({"classpath:jdbc.properties"})
 public class DataConfig {
 
     @Autowired
@@ -37,7 +39,7 @@ public class DataConfig {
         LocalContainerEntityManagerFactoryBean emf = new LocalContainerEntityManagerFactoryBean();
         emf.setDataSource(dataSource());
         emf.setPersistenceProvider(new HibernatePersistenceProvider());
-        emf.setPackagesToScan("eu.execom.labs.pomodoro.entity");
+        emf.setPackagesToScan(EntityComponents.ENTITY_PACKAGE);
         emf.setJpaProperties(hibProperties());
         return emf;
     }

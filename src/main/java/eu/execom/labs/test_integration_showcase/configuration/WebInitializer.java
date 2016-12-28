@@ -1,4 +1,4 @@
-package eu.execom.representation.spring_mvc_integration.configuration;
+package eu.execom.labs.test_integration_showcase.configuration;
 
 import org.springframework.web.servlet.support.AbstractAnnotationConfigDispatcherServletInitializer;
 
