@@ -1,4 +1,4 @@
-package eu.execom.representation.spring_mvc_integration.entity;
+package eu.execom.labs.test_integration_showcase.entity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -7,7 +7,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import eu.execom.representation.spring_mvc_integration.dto.PersonDTO;
+import eu.execom.labs.test_integration_showcase.dto.PersonDto;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -22,7 +22,7 @@ public class Person {
     private long personId;
 
     @Column(nullable = false, unique = true)
-    private String SSN;
+    private String ssn;
 
     @Column(unique = true)
     private String email;
@@ -33,12 +33,11 @@ public class Person {
     @Column(nullable = false)
     private String lastName;
 
-    public Person(PersonDTO personDTO) {
-        this.SSN = personDTO.getSSN();
-        this.email = personDTO.getEmail();
-        this.firstName = personDTO.getFirstName();
-        this.lastName = personDTO.getLastName();
-
+    public Person(PersonDto personDto) {
+        this.ssn = personDto.getSsn();
+        this.email = personDto.getEmail();
+        this.firstName = personDto.getFirstName();
+        this.lastName = personDto.getLastName();
     }
 
 }
