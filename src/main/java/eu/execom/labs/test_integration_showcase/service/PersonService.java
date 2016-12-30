@@ -24,7 +24,8 @@ public class PersonService {
     }
 
     public PersonDto getPersonBySsn(String ssn) {
-        return new PersonDto(personRepository.findBySsn(ssn));
+        return new PersonDto(personRepository.findBySsn(ssn)
+                                             .get());
     }
 
     public PersonDto addPerson(PersonDto personDto) {
