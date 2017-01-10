@@ -18,7 +18,7 @@ public class PersonDto {
     private long personId;
 
     @NotNull
-    @Pattern(regexp = ("[0-9]{3}-[0-9]{3}-[0-9]{3}"))
+    @Pattern(regexp = ("\\d{3}-\\d{2}-\\d{4}"))
     private String ssn;
 
     @Email

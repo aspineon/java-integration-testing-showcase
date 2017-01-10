@@ -1,14 +1,15 @@
 package eu.execom.labs.test_integration_showcase.controller;
 
-import static org.junit.Assert.assertEquals;
+
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-
-import java.nio.charset.Charset;
-import java.util.List;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.type.TypeReference;
+import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +19,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
@@ -38,8 +38,7 @@ public class PersonControllerTest {
 
     private ObjectMapper objectMapper;
 
-    private MediaType contentType = new MediaType(MediaType.APPLICATION_JSON.getType(),
-            MediaType.APPLICATION_JSON.getSubtype(), Charset.forName("utf8"));
+    private MediaType contentType = MediaType.APPLICATION_JSON;
 
     @Before
     public void setUp() {
@@ -59,154 +58,130 @@ public class PersonControllerTest {
 
     @Test
     public void shouldFindAllPersons() throws Exception {
-        // given
-        PersonDto personDtoFirst = createPerson("johndoe101@gmail.com", "123-123-333");
-        PersonDto personDtoSecond = createPerson("johndoe102@gmail.com", "123-123-334");
+        PersonDto personDtoFirst = createPerson("johndoe101@gmail.com", "123-12-3334");
+        PersonDto personDtoSecond = createPerson("johndoe102@gmail.com", "123-12-3345");
 
-        // when
-        MvcResult mockResultFirst = mockMvc.perform(
-                post("/persons").content(objectMapper.writeValueAsString(personDtoFirst))
-                                .contentType(contentType))
-                                           .andReturn();
-        MvcResult mockResultSecond = mockMvc.perform(
-                post("/persons").content(objectMapper.writeValueAsString(personDtoSecond))
-                                .contentType(contentType))
-                                            .andReturn();
-        assertEquals(mockResultFirst.getResponse()
-                                    .getStatus(),
-                200);
-        assertEquals(mockResultSecond.getResponse()
-                                     .getStatus(),
-                200);
-
-        // then
-        MvcResult result = mockMvc.perform(get("/persons"))
-                                  .andReturn();
-        String returnedResult = result.getResponse()
-                                      .getContentAsString();
-        List<PersonDto> personList = objectMapper.readValue(returnedResult, new TypeReference<List<PersonDto>>() {
-        });
-        assertEquals(personList.size(), 2);
+        // insert first person into db
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDtoFirst))
+                .contentType(contentType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDtoFirst.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDtoFirst.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDtoFirst.getFirstName())))
+                .andExpect(jsonPath("$.lastName", equalTo(personDtoFirst.getLastName())));
+        
+        // insert second person into db
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDtoSecond))
+                .contentType(contentType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDtoSecond.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDtoSecond.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDtoSecond.getFirstName())))
+                .andExpect(jsonPath("$.lastName", equalTo(personDtoSecond.getLastName())));
+        
+        //check if GET method returns objects that are initially added
+        mockMvc.perform(get("/persons/"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(jsonPath("$[0].email", is(personDtoFirst.getEmail())))
+                .andExpect(jsonPath("$[0].ssn", is(personDtoFirst.getSsn())))
+                .andExpect(jsonPath("$[0].firstName", is(personDtoFirst.getFirstName())))
+                .andExpect(jsonPath("$[0].lastName", is(personDtoFirst.getLastName())))
+                .andExpect(jsonPath("$[1].email", is(personDtoSecond.getEmail())))
+                .andExpect(jsonPath("$[1].ssn", is(personDtoSecond.getSsn())))
+                .andExpect(jsonPath("$[1].firstName", is(personDtoSecond.getFirstName())))
+                .andExpect(jsonPath("$[1].lastName", is(personDtoSecond.getLastName())));
     }
 
     @Test
     public void shouldAddPerson() throws Exception {
-        // given
-        PersonDto personDto = createPerson("johndoe23@gmail.com", "123-123-456");
-
-        // when
-        MvcResult mockResult = mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
-                                                               .contentType(contentType))
-                                      .andReturn();
-
-        // then
-        String jsonResult = mockResult.getResponse()
-                                      .getContentAsString();
-        PersonDto returnedPerson = objectMapper.readValue(jsonResult, PersonDto.class);
-        assertEquals(personDto, returnedPerson);
-        assertEquals(mockResult.getResponse()
-                               .getStatus(),
-                200);
+        PersonDto personDto = createPerson("johndoe@gmail.com", "123-45-6789");
+        
+        // insert person into db
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(contentType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", equalTo(personDto.getLastName())));
     }
 
     @Test
-    public void shouldAddDuplicatePerson() throws Exception {
-        // given
-        PersonDto personDto = createPerson("johndoe23@gmail.com", "123-123-456");
+    public void shouldReturnServerErrorWhenPersonIsDuplicate() throws Exception {
+        PersonDto personDto = createPerson("johndoe2@gmail.com", "123-45-6780");
 
-        // when
-        MvcResult mockResult = mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
-                                                               .contentType(contentType))
-                                      .andReturn();
-
-        // then
-        String jsonResult = mockResult.getResponse()
-                                      .getContentAsString();
-        PersonDto returnedPerson = objectMapper.readValue(jsonResult, PersonDto.class);
-        assertEquals(personDto, returnedPerson);
-        assertEquals(mockResult.getResponse()
-                               .getStatus(),
-                200);
-
-        MvcResult mockResultReturn = mockMvc.perform(
-                post("/persons").content(objectMapper.writeValueAsString(personDto))
-                                .contentType(contentType))
-                                            .andReturn();
-        assertEquals(mockResultReturn.getResponse()
-                                     .getStatus(),
-                500);
-
+        // insert person into db
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(contentType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
+       
+        // try to insert duplicate person
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(contentType))
+                .andExpect(status().is5xxServerError());
     }
 
     @Test
-    public void shouldAddPersonWhenEmailIsNotCorrect() throws Exception {
-        // given
-        PersonDto personDto = createPerson("johndoe23gmail.com", "123-123-456");
-
-        // when
-        MvcResult mockResult = mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
-                                                               .contentType(contentType))
-                                      .andReturn();
-        // then
-        assertEquals(mockResult.getResponse()
-                               .getStatus(),
-                400);
+    public void shouldReturnBadRequestWhenEmailIsInvalid() throws Exception {
+        PersonDto personDto = createPerson("johndoegmail.com", "123-45-6789");
+        
+        // try to insert person with incorrect email
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(contentType))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
-    public void shouldAddPersonWhenSsnIsNotCorrect() throws Exception {
-        // given
-        PersonDto personDto = createPerson("johndoe23@gmail.com", "123-123-4");
-
-        // when
-        MvcResult mockResult = mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
-                                                               .contentType(contentType))
-                                      .andReturn();
-        // then
-        assertEquals(mockResult.getResponse()
-                               .getStatus(),
-                400);
+    public void shouldReturnBadRequestWhenSsnIsInvalid() throws Exception {
+        PersonDto personDto = createPerson("johndoe@gmail.com", "123-45-6");
+        
+        // try to insert person with incorrect ssn
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(contentType))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
     public void shouldAddPersonAndCheckIfIsConsistent() throws Exception {
-        // given
-        PersonDto personDto = createPerson("johndoe24@gmail.com", "123-123-457");
-
-        // when
-        MvcResult mockAddResult = mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
-                                                                  .contentType(contentType))
-                                         .andReturn();
-
-        // then
-        String jsonAddResult = mockAddResult.getResponse()
-                                            .getContentAsString();
-        PersonDto returnedPerson = objectMapper.readValue(jsonAddResult, PersonDto.class);
-        assertEquals(personDto, returnedPerson);
-        assertEquals(mockAddResult.getResponse()
-                                  .getStatus(),
-                200);
-
-        MvcResult mockGetResult = mockMvc.perform(get("/persons/" + returnedPerson.getSsn()))
-                                         .andReturn();
-        String jsonGetResult = mockGetResult.getResponse()
-                                            .getContentAsString();
-        PersonDto resultPerson = objectMapper.readValue(jsonGetResult, PersonDto.class);
-        assertEquals(returnedPerson, resultPerson);
+        PersonDto personDto = createPerson("johndoe3@gmail.com", "123-45-6781");
+        
+        // insert person
+        mockMvc.perform(post("/persons")
+                .content(objectMapper.writeValueAsString(personDto))
+                .contentType(contentType))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
+        
+        // check if inserted person is same as the one from  GET request
+        mockMvc.perform(get("/persons/" + personDto.getSsn()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
     }
 
     @Test
-    public void shouldGetOnePersonNotFound() throws Exception {
-        // given
-        String ssn = "123-123-123";
-
-        // when
-        MvcResult mockResult = mockMvc.perform(get("/persons/" + ssn))
-                                      .andReturn();
-
-        // then
-        assertEquals(mockResult.getResponse()
-                               .getStatus(),
-                404);
+    public void shouldReturnNotFoundOnMissingSsn() throws Exception {
+        String ssn = "123-45-9999";
+        
+        // check if person with provided ssn exists in db (should return bad request)
+        mockMvc.perform(get("/person/" + ssn))
+                .andExpect(status().is4xxClientError());
     }
 }
