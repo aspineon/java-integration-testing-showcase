@@ -10,5 +10,5 @@ import eu.execom.labs.test_integration_showcase.controller.ControllerComponents;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackageClasses = ControllerComponents.class)
-public class WebConfigTest extends WebMvcConfigurerAdapter {
+public class TestWebConfiguration extends WebMvcConfigurerAdapter {
 }

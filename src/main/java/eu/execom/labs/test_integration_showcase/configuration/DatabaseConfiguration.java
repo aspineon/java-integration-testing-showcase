@@ -19,7 +19,7 @@ import eu.execom.labs.test_integration_showcase.repository.RepositoryComponents;
 @Configuration
 @EnableJpaRepositories(basePackageClasses = RepositoryComponents.class)
 @PropertySource({"classpath:jdbc.properties"})
-public class DataConfig {
+public class DatabaseConfiguration {
 
     @Autowired
     private Environment environment;
