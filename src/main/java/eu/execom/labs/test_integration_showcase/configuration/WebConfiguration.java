@@ -13,7 +13,7 @@ import eu.execom.labs.test_integration_showcase.controller.ControllerComponents;
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackageClasses = ControllerComponents.class)
-public class WebConfig extends WebMvcConfigurerAdapter {
+public class WebConfiguration extends WebMvcConfigurerAdapter {
 
     @Bean
     public InternalResourceViewResolver viewResolver() {

@@ -19,7 +19,7 @@ import eu.execom.labs.test_integration_showcase.repository.RepositoryComponents;
 @Configuration
 @EnableJpaRepositories(basePackageClasses = RepositoryComponents.class)
 @PropertySource({"classpath:jdbc.test.properties"})
-public class DataConfigTest {
+public class TestDatabaseConfiguration {
 
     @Bean
     public DataSource dataSource() {
