@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class Person {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long personId;
 
     @Column(nullable = false, unique = true)
@@ -39,5 +39,4 @@ public class Person {
         this.firstName = personDto.getFirstName();
         this.lastName = personDto.getLastName();
     }
-
 }

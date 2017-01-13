@@ -7,16 +7,18 @@ import org.hibernate.validator.constraints.Email;
 
 import eu.execom.labs.test_integration_showcase.entity.Person;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
+@EqualsAndHashCode(exclude = "personId")
 public class PersonDto {
 
     private long personId;
 
     @NotNull
-    @Pattern(regexp = ("[0-3]{3}-[0-3]{3}-[0-3]{3}"))
+    @Pattern(regexp = ("\\d{3}-\\d{2}-\\d{4}"))
     private String ssn;
 
     @Email
@@ -37,5 +39,4 @@ public class PersonDto {
         this.firstName = person.getFirstName();
         this.lastName = person.getLastName();
     }
-
 }

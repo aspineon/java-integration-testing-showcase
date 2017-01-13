@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Import;
 import eu.execom.labs.test_integration_showcase.service.ServiceComponents;
 
 @Configuration
-@Import({DataConfig.class})
+@Import({TestDatabaseConfiguration.class})
 @ComponentScan(basePackageClasses = ServiceComponents.class)
-public class RootConfig {
+public class TestRootConfiguration {
 }

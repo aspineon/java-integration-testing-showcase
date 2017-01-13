@@ -31,5 +31,4 @@ public class PersonService {
     public PersonDto addPerson(PersonDto personDto) {
         return new PersonDto(personRepository.save(new Person(personDto)));
     }
-
 }

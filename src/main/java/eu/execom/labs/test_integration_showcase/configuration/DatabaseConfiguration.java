@@ -19,7 +19,7 @@ import eu.execom.labs.test_integration_showcase.repository.RepositoryComponents;
 @Configuration
 @EnableJpaRepositories(basePackageClasses = RepositoryComponents.class)
 @PropertySource({"classpath:jdbc.properties"})
-public class DataConfig {
+public class DatabaseConfiguration {
 
     @Autowired
     private Environment environment;
@@ -49,6 +49,8 @@ public class DataConfig {
         properties.put("hibernate.dialect", environment.getRequiredProperty("hibernate.dialect"));
         properties.put("hibernate.show_sql", environment.getRequiredProperty("hibernate.show_sql"));
         properties.put("hibernate.hbm2ddl.auto", environment.getRequiredProperty("hibernate.hbm2ddl.auto"));
+        properties.put("hibernate.improved_naming_strategy",
+                environment.getRequiredProperty("hibernate.improved_naming_strategy"));
         return properties;
     }
 
@@ -58,5 +60,4 @@ public class DataConfig {
         tm.setDataSource(dataSource());
         return tm;
     }
-
 }
