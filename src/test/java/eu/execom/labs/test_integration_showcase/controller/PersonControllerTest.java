@@ -41,8 +41,6 @@ public class PersonControllerTest {
 
     private ObjectMapper objectMapper;
 
-    private MediaType contentType = MediaType.APPLICATION_JSON;
-
     @Before
     public void setUp() {
         mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
@@ -55,17 +53,17 @@ public class PersonControllerTest {
         PersonDto personDtoSecond = createPerson("johndoe102@gmail.com", "123-12-3345");
 
         // insert first person into db
-        mockMvc.perform(
-                post("/persons").content(objectMapper.writeValueAsString(personDtoFirst)).contentType(contentType))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.email", is(personDtoFirst.getEmail())))
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDtoFirst))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDtoFirst.getEmail())))
                 .andExpect(jsonPath("$.ssn", is(personDtoFirst.getSsn())))
                 .andExpect(jsonPath("$.firstName", is(personDtoFirst.getFirstName())))
                 .andExpect(jsonPath("$.lastName", equalTo(personDtoFirst.getLastName())));
 
         // insert second person into db
-        mockMvc.perform(
-                post("/persons").content(objectMapper.writeValueAsString(personDtoSecond)).contentType(contentType))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.email", is(personDtoSecond.getEmail())))
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDtoSecond))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDtoSecond.getEmail())))
                 .andExpect(jsonPath("$.ssn", is(personDtoSecond.getSsn())))
                 .andExpect(jsonPath("$.firstName", is(personDtoSecond.getFirstName())))
                 .andExpect(jsonPath("$.lastName", equalTo(personDtoSecond.getLastName())));
@@ -87,8 +85,9 @@ public class PersonControllerTest {
         PersonDto personDto = createPerson("johndoe@gmail.com", "123-45-6789");
 
         // insert person into db
-        mockMvc.perform(post("/persons").contentType(contentType).content(objectMapper.writeValueAsString(personDto)))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.email", is(personDto.getEmail())))
+        mockMvc.perform(post("/persons").contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(personDto))).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
                 .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
                 .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
                 .andExpect(jsonPath("$.lastName", equalTo(personDto.getLastName())));
@@ -99,15 +98,16 @@ public class PersonControllerTest {
         PersonDto personDto = createPerson("johndoe2@gmail.com", "123-45-6780");
 
         // insert person into db
-        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto)).contentType(contentType))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.email", is(personDto.getEmail())))
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
                 .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
                 .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
                 .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
 
         // try to insert duplicate person
-        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto)).contentType(contentType))
-                .andExpect(status().is5xxServerError());
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().is5xxServerError());
     }
 
     @Test
@@ -115,8 +115,8 @@ public class PersonControllerTest {
         PersonDto personDto = createPerson("johndoegmail.com", "123-45-6789");
 
         // try to insert person with incorrect email
-        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto)).contentType(contentType))
-                .andExpect(status().is4xxClientError());
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -124,8 +124,8 @@ public class PersonControllerTest {
         PersonDto personDto = createPerson("johndoe@gmail.com", "123-45-6");
 
         // try to insert person with incorrect ssn
-        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto)).contentType(contentType))
-                .andExpect(status().is4xxClientError());
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -133,8 +133,9 @@ public class PersonControllerTest {
         PersonDto personDto = createPerson("johndoe3@gmail.com", "123-45-6781");
 
         // insert person
-        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto)).contentType(contentType))
-                .andExpect(status().isOk()).andExpect(jsonPath("$.email", is(personDto.getEmail())))
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
                 .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
                 .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
                 .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
