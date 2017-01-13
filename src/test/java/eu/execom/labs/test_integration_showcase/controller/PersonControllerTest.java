@@ -94,7 +94,7 @@ public class PersonControllerTest {
     }
 
     @Test
-    public void shouldReturnServerErrorWhenPersonIsDuplicate() throws Exception {
+    public void shouldReturnServerErrorWhenSsnIsDuplicate() throws Exception {
         PersonDto personDto = createPerson("johndoe2@gmail.com", "123-45-6780");
 
         // insert person into db
@@ -105,7 +105,26 @@ public class PersonControllerTest {
                 .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
                 .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
 
-        // try to insert duplicate person
+        // try to insert person with duplicate Ssn
+        personDto.setEmail("johndoe23@gmail.com");
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().is5xxServerError());
+    }
+
+    @Test
+    public void shouldReturnServerErrorWhenEmailIsDuplicate() throws Exception {
+        PersonDto personDto = createPerson("johndoe2@gmail.com", "123-45-6780");
+
+        // insert person into db
+        mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
+                .contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk())
+                .andExpect(jsonPath("$.email", is(personDto.getEmail())))
+                .andExpect(jsonPath("$.ssn", is(personDto.getSsn())))
+                .andExpect(jsonPath("$.firstName", is(personDto.getFirstName())))
+                .andExpect(jsonPath("$.lastName", is(personDto.getLastName())));
+
+        // try to insert person with duplicate email
+        personDto.setSsn("222-11-7848");
         mockMvc.perform(post("/persons").content(objectMapper.writeValueAsString(personDto))
                 .contentType(MediaType.APPLICATION_JSON)).andExpect(status().is5xxServerError());
     }
