@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
@@ -45,18 +46,13 @@ public class PersonControllerHttpClientTest {
 
     @Test
     public void shouldFindAllPersons() throws Exception {
-        // create HTTP requests
+        PersonDto personDtoFirst = createPerson("johndoe@gmail.com", "123-45-6789");
         HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
         HttpGet getAllRequest = new HttpGet(URL);
 
-        // create person and set it to request entity
-        PersonDto personDtoFirst = createPerson("JohnDoe23@gmail.com", "111-11-1111");
-        request.setEntity(new StringEntity(objectMapper.writeValueAsString(personDtoFirst)));
-
-        // execute request and assert that status code is OK
-        HttpResponse httpFirstResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(200, httpFirstResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpFirstResponse = createAndPostPerson(personDtoFirst, request);
+        assertEquals(HttpStatus.SC_OK, httpFirstResponse.getStatusLine().getStatusCode());
 
         // deserialize response to PersonDto object and assert equality of objects
         PersonDto returnedFirstPerson = objectMapper.readValue(EntityUtils.toString(httpFirstResponse.getEntity()),
@@ -69,7 +65,7 @@ public class PersonControllerHttpClientTest {
 
         // execute request and assert that status code is OK
         HttpResponse httpSecondResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(200, httpSecondResponse.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_OK, httpSecondResponse.getStatusLine().getStatusCode());
 
         // deserialize response to PersonDto object and assert equality of objects
         PersonDto returnedSecondPerson = objectMapper.readValue(EntityUtils.toString(httpSecondResponse.getEntity()),
@@ -78,7 +74,7 @@ public class PersonControllerHttpClientTest {
 
         // get all persons from db and assert their equality with the ones inserted
         HttpResponse httpGetAllResponse = HttpClientBuilder.create().build().execute(getAllRequest);
-        assertEquals(200, httpGetAllResponse.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_OK, httpGetAllResponse.getStatusLine().getStatusCode());
 
         List<PersonDto> personList = objectMapper.readValue(EntityUtils.toString(httpGetAllResponse.getEntity()),
                 new TypeReference<List<PersonDto>>() {});
@@ -88,17 +84,12 @@ public class PersonControllerHttpClientTest {
 
     @Test
     public void shouldAddPerson() throws Exception {
-        // create HTTP request
+        PersonDto person = createPerson("johndoe@gmail.com", "123-45-6789");
         HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
 
-        // create person and set it to request entity
-        PersonDto person = createPerson("johndoe103@gmail.com", "789-67-1320");
-        request.setEntity(new StringEntity(objectMapper.writeValueAsString(person)));
-
-        // execute request and assert that status code is OK
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(200, httpResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpResponse = createAndPostPerson(person, request);
+        assertEquals(HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
 
         // deserialize response to PersonDto object and assert equality of objects
         PersonDto returnedPerson = objectMapper.readValue(EntityUtils.toString(httpResponse.getEntity()),
@@ -108,17 +99,12 @@ public class PersonControllerHttpClientTest {
 
     @Test
     public void shouldAddPersonAndCheckIfIsConsistent() throws Exception {
-        // create HTTP request
+        PersonDto person = createPerson("johndoe@gmail.com", "123-45-6789");
         HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
 
-        // create person and set it to request entity
-        PersonDto person = createPerson("johndoe@gmail.com", "789-65-3271");
-        request.setEntity(new StringEntity(objectMapper.writeValueAsString(person)));
-
-        // execute request and assert that status code is OK
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(200, httpResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpResponse = createAndPostPerson(person, request);
+        assertEquals(HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
 
         // deserialize response to PersonDto object and assert equality of objects
         PersonDto returnedPerson = objectMapper.readValue(EntityUtils.toString(httpResponse.getEntity()),
@@ -128,7 +114,7 @@ public class PersonControllerHttpClientTest {
         // get person from db
         HttpGet getRequest = new HttpGet(URL + "/" + person.getSsn());
         HttpResponse httpGetResponse = HttpClientBuilder.create().build().execute(getRequest);
-        assertEquals(200, httpGetResponse.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_OK, httpGetResponse.getStatusLine().getStatusCode());
 
         // assert equality between inserted and retrieved objects
         String jsonReturnedGetPerson = EntityUtils.toString(httpGetResponse.getEntity());
@@ -143,50 +129,37 @@ public class PersonControllerHttpClientTest {
 
         // execute request with unknown ssn and expect to return status code 404 Not Found
         HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(404, httpResponse.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_NOT_FOUND, httpResponse.getStatusLine().getStatusCode());
     }
 
     @Test
     public void shouldReturnBadRequestWhenEmailIsInvalid() throws Exception {
+        PersonDto person = createPerson("johndoe.gmail.com", "123-45-6789");
         HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
 
-        // create person and set it to request entity
-        String jsonPerson = objectMapper.writeValueAsString(createPerson("johndoegmail.com", "789-67-3120"));
-        request.setEntity(new StringEntity(jsonPerson));
-
-        // execute request with invalid email and expect to return status code 404 Not Found
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(400, httpResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpResponse = createAndPostPerson(person, request);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, httpResponse.getStatusLine().getStatusCode());
     }
 
     @Test
     public void shouldReturnBadRequestWhenSsnIsInvalid() throws Exception {
+        PersonDto person = createPerson("johndoe@gmail.com", "123-45-6");
         HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
 
-        // create person and set it to request entity
-        String jsonPerson = objectMapper.writeValueAsString(createPerson("johndoe@gmail.com", "789-674-3"));
-        request.setEntity(new StringEntity(jsonPerson));
-
-        // execute request with invalid ssn and expect to return status code 404 Not Found
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(400, httpResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpResponse = createAndPostPerson(person, request);
+        assertEquals(HttpStatus.SC_BAD_REQUEST, httpResponse.getStatusLine().getStatusCode());
     }
 
     @Test
     public void shouldReturnServerErrorWhenEmailIsDuplicate() throws Exception {
-        HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
-
-        // create person and set it to request entity
         PersonDto person = createPerson("johndoe@gmail.com", "123-45-6789");
-        String jsonPerson = objectMapper.writeValueAsString(person);
-        request.setEntity(new StringEntity(jsonPerson));
+        HttpPost request = new HttpPost(URL);
 
-        // execute request and assert that status code is OK
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(200, httpResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpResponse = createAndPostPerson(person, request);
+        assertEquals(HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
 
         // assert equality between inserted and retrieved objects
         String jsonReturnedPerson = EntityUtils.toString(httpResponse.getEntity());
@@ -198,22 +171,17 @@ public class PersonControllerHttpClientTest {
         String jsonDuplicatePerson = objectMapper.writeValueAsString(person);
         request.setEntity(new StringEntity(jsonDuplicatePerson));
         HttpResponse httpResponseDuplicate = HttpClientBuilder.create().build().execute(request);
-        assertEquals(500, httpResponseDuplicate.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_INTERNAL_SERVER_ERROR, httpResponseDuplicate.getStatusLine().getStatusCode());
     }
 
     @Test
     public void shouldReturnServerErrorWhenSsnIsDuplicate() throws Exception {
-        HttpPost request = new HttpPost(URL);
-        request.addHeader("Content-Type", "application/json");
-
-        // create person and set it to request entity
         PersonDto person = createPerson("johndoe@gmail.com", "123-45-6789");
-        String jsonPerson = objectMapper.writeValueAsString(person);
-        request.setEntity(new StringEntity(jsonPerson));
+        HttpPost request = new HttpPost(URL);
 
-        // execute request and assert that status code is OK
-        HttpResponse httpResponse = HttpClientBuilder.create().build().execute(request);
-        assertEquals(200, httpResponse.getStatusLine().getStatusCode());
+        // send POST request for created person
+        HttpResponse httpResponse = createAndPostPerson(person, request);
+        assertEquals(HttpStatus.SC_OK, httpResponse.getStatusLine().getStatusCode());
 
         // assert equality between inserted and retrieved objects
         String jsonReturnedPerson = EntityUtils.toString(httpResponse.getEntity());
@@ -225,7 +193,7 @@ public class PersonControllerHttpClientTest {
         String jsonDuplicatePerson = objectMapper.writeValueAsString(person);
         request.setEntity(new StringEntity(jsonDuplicatePerson));
         HttpResponse httpResponseDuplicate = HttpClientBuilder.create().build().execute(request);
-        assertEquals(500, httpResponseDuplicate.getStatusLine().getStatusCode());
+        assertEquals(HttpStatus.SC_BAD_REQUEST, httpResponseDuplicate.getStatusLine().getStatusCode());
     }
 
     private PersonDto createPerson(String email, String ssn) {
@@ -235,5 +203,15 @@ public class PersonControllerHttpClientTest {
         personDto.setLastName("Doe");
         personDto.setSsn(ssn);
         return personDto;
+    }
+
+    private HttpResponse createAndPostPerson(PersonDto person, HttpPost request) throws Exception {
+        request.addHeader("Content-Type", "application/json");
+
+        String jsonPerson = objectMapper.writeValueAsString(person);
+        request.setEntity(new StringEntity(jsonPerson));
+
+        // execute request and assert that status code is OK
+        return HttpClientBuilder.create().build().execute(request);
     }
 }
