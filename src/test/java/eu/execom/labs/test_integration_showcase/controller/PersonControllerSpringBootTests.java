@@ -48,17 +48,14 @@ public class PersonControllerSpringBootTests {
     public void shouldAddPerson() throws Exception {
         PersonDto personDto = createPerson("JohnDoe23@gmail.com", "111-11-1111");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
-
         // execute request (add person) and get response
-        ResponseEntity<String> response = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> response = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         // check equality of expected (initially added) and returned person
-        PersonDto person = objectMapper.readValue(response.getBody(), new TypeReference<PersonDto>() {});
+        PersonDto person = objectMapper.readValue(response.getBody(), PersonDto.class);
         assertEquals(personDto, person);
     }
 
@@ -67,30 +64,24 @@ public class PersonControllerSpringBootTests {
         PersonDto personDtoFirst = createPerson("JohnDoe24@gmail.com", "111-11-1112");
         PersonDto personDtoSecond = createPerson("JohnDoe25@gmail.com", "111-11-1113");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> requestFirst = new HttpEntity<>(personDtoFirst);
-        HttpEntity<PersonDto> requestSecond = new HttpEntity<>(personDtoSecond);
-
         // execute request (add first person) and get response
-        ResponseEntity<String> addFirstResponse = restTemplate.postForEntity("/persons", requestFirst, String.class);
+        ResponseEntity<String> addFirstResponse = createRequestAndPostPerson(personDtoFirst);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.OK, addFirstResponse.getStatusCode());
 
         // check equality of expected (initially added first person) and returned person
-        PersonDto returnedFirstPerson = objectMapper.readValue(addFirstResponse.getBody(),
-                new TypeReference<PersonDto>() {});
+        PersonDto returnedFirstPerson = objectMapper.readValue(addFirstResponse.getBody(), PersonDto.class);
         assertEquals(personDtoFirst, returnedFirstPerson);
 
         // execute request (add second person) and get response
-        ResponseEntity<String> addSecondResponse = restTemplate.postForEntity("/persons", requestSecond, String.class);
+        ResponseEntity<String> addSecondResponse = createRequestAndPostPerson(personDtoSecond);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.OK, addSecondResponse.getStatusCode());
 
         // check equality of expected (initially added second person) and returned person
-        PersonDto returnedSecondPerson = objectMapper.readValue(addSecondResponse.getBody(),
-                new TypeReference<PersonDto>() {});
+        PersonDto returnedSecondPerson = objectMapper.readValue(addSecondResponse.getBody(), PersonDto.class);
         assertEquals(personDtoSecond, returnedSecondPerson);
 
         // execute request (get all persons) and get response
@@ -112,11 +103,8 @@ public class PersonControllerSpringBootTests {
     public void shouldReturnBadRequestWhenEmailIsInvalid() throws Exception {
         PersonDto personDto = createPerson("JohnDoe29gmail.com", "211-11-1121");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
-
         // execute request (try to add person) and get response
-        ResponseEntity<String> response = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> response = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -126,11 +114,8 @@ public class PersonControllerSpringBootTests {
     public void shouldReturnBadRequestWhenSsnIsInvalid() throws Exception {
         PersonDto personDto = createPerson("JohnDoe25@gmail.com", "311-111");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
-
         // execute request (try to add person) and get response
-        ResponseEntity<String> response = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> response = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -140,11 +125,8 @@ public class PersonControllerSpringBootTests {
     public void shouldAddPersonAndCheckIfIsConsistent() throws Exception {
         PersonDto personDto = createPerson("JohnDoe26@gmail.com", "111-11-1116");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
-
         // execute request (add person) and get response
-        ResponseEntity<String> addResponse = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> addResponse = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.OK, addResponse.getStatusCode());
@@ -166,22 +148,19 @@ public class PersonControllerSpringBootTests {
     public void shouldReturnServerErrorWhenEmailIsDuplicate() throws Exception {
         PersonDto personDto = createPerson("JohnDoe27@gmail.com", "511-11-1114");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
-
         // execute request (add person) and get response
-        ResponseEntity<String> response = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> response = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         // check equality of expected (initially added person) and returned person
-        PersonDto returnedPerson = objectMapper.readValue(response.getBody(), new TypeReference<PersonDto>() {});
+        PersonDto returnedPerson = objectMapper.readValue(response.getBody(), PersonDto.class);
         assertEquals(personDto, returnedPerson);
 
         // execute request (try to add person with duplicate email) and get response
         personDto.setSsn("111-22-1414");
-        ResponseEntity<String> duplicateResponse = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> duplicateResponse = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, duplicateResponse.getStatusCode());
@@ -191,22 +170,19 @@ public class PersonControllerSpringBootTests {
     public void shouldReturnServerErrorWhenSsnIsDuplicate() throws Exception {
         PersonDto personDto = createPerson("JohnDoe27@gmail.com", "511-11-1114");
 
-        // create a new request with the entity body (personDto)
-        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
-
         // execute request (add person) and get response
-        ResponseEntity<String> response = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> response = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.OK, response.getStatusCode());
 
         // check equality of expected (initially added person) and returned person
-        PersonDto returnedPerson = objectMapper.readValue(response.getBody(), new TypeReference<PersonDto>() {});
+        PersonDto returnedPerson = objectMapper.readValue(response.getBody(), PersonDto.class);
         assertEquals(personDto, returnedPerson);
 
         // execute request (try to add person with duplicate ssn) and get response
         personDto.setEmail("JohnDoe28@gmail.com");
-        ResponseEntity<String> duplicateResponse = restTemplate.postForEntity("/persons", request, String.class);
+        ResponseEntity<String> duplicateResponse = createRequestAndPostPerson(personDto);
 
         // check equality of expected and actual status code
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, duplicateResponse.getStatusCode());
@@ -230,5 +206,11 @@ public class PersonControllerSpringBootTests {
         personDto.setLastName("Doe");
         personDto.setSsn(ssn);
         return personDto;
+    }
+
+    private ResponseEntity<String> createRequestAndPostPerson(PersonDto personDto) {
+        // create a new request with the entity body (personDto)
+        HttpEntity<PersonDto> request = new HttpEntity<>(personDto);
+        return restTemplate.postForEntity("/persons", request, String.class);
     }
 }
