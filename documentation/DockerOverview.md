@@ -59,18 +59,7 @@ There are several docker clients written in Java. One of them is Spotify.
     <version>LATEST-VERSION</version>
 </dependency>
 ```
- `Usage example:`
- ```sh
-   DockerClient docker = DefaultDockerClient.builder().uri("http://127.0.0.1:2375").build();
-   ContainerConfig containerConfig = ContainerConfig.builder().image("persons").build();
-   ContainerCreation container = docker.createContainer(containerConfig);
-   String containerId = container.id();
-   docker.startContainer(containerId);
-   ...
-   dockerClient.stopContainer(containerId, 0);
-   dockerClient.removeContainer(containerId);
-   dockerClient.close();
-```
+
 #### Docker images
 A Docker image is a read-only template with instructions for creating a Docker container. 
 You can build or update images from scratch or download and use images created by others. An image can be based on, or may extend, one or more other images. A docker image is described in text file called a Dockerfile, which has a simple, well-defined syntax.
@@ -154,3 +143,31 @@ Reference documentation:
 - [Docker daemon](https://docs.docker.com/engine/reference/commandline/dockerd/)
 - [Docker for beginners](https://prakhar.me/docker-curriculum/)
 - [Docker basics](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
+
+
+
+
+#### Integration testing with Docker
+Using docker with integration testing gives us ability to work in completely isolated environment, and to achieve high portability.
+Unlike virtual machines, Docker containers do not require an entire operating system, all required libraries and the actual application binaries. The same Linux kernel and libraries can be shared between multiple containers running on the host. Docker makes it easy to package Linux software in self-contained images, where all software dependencies are bundled and deployed in a repeatable manner. An image will have exactly the same software installed, whether we run it on a laptop or on a server. The key benefit of Docker is that it allows users to package an application with all of its dependencies into a standardized unit (container). As you can see Docker also saves us a lot of time with its ability to create and destroy containers, without having to mess with whole OS.
+
+Now that we have custom MySQL container, we can do integration testing.
+Each test should connect to a fresh container, with the DB in the same state. It should be able to read and write, but all changes should be lost when the test ends and the container is destroyed. We get a completely clean MySQL server for every test. This completely isolates our test cases so that no tests can influence each other. We test against the same version we have in production
+
+ `Example using Spotify:`
+ 
+ *Before Test*
+ ```sh
+   DockerClient docker = DefaultDockerClient.builder().uri("http://127.0.0.1:2375").build();
+   ContainerConfig containerConfig = ContainerConfig.builder().image("persons").build();
+   ContainerCreation container = docker.createContainer(containerConfig);
+   String containerId = container.id();
+   docker.startContainer(containerId);
+ ```
+ *After Test*
+ ```
+   dockerClient.stopContainer(containerId, 0);
+   dockerClient.removeContainer(containerId);
+   dockerClient.close();
+```
+
