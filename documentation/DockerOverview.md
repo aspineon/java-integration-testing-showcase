@@ -137,12 +137,7 @@ MYSQL_ROOT_PASSWORD is mandatory variable and specifies the password that will b
 ADD command to adds your schema file to the /docker-entrypoint-initdb.d directory in the Docker container. The `docker-entrypoint.sh` file will run any files in this directory ending with ".sql" against the MySQL database.
 In this particular example, initDatabase.sql must be placed in the same folder as Dockerfile.
 
-Reference documentation:
-- [Docker overview](https://docs.docker.com/engine/understanding-docker)
-- [Understand images, containers, and storage drivers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/)
-- [Docker daemon](https://docs.docker.com/engine/reference/commandline/dockerd/)
-- [Docker for beginners](https://prakhar.me/docker-curriculum/)
-- [Docker basics](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
+
 
 
 
@@ -170,4 +165,9 @@ Each test should connect to a fresh container, with the DB in the same state. It
    dockerClient.removeContainer(containerId);
    dockerClient.close();
 ```
-
+Reference documentation:
+- [Docker overview](https://docs.docker.com/engine/understanding-docker)
+- [Understand images, containers, and storage drivers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/)
+- [Docker daemon](https://docs.docker.com/engine/reference/commandline/dockerd/)
+- [Docker for beginners](https://prakhar.me/docker-curriculum/)
+- [Docker basics](https://severalnines.com/blog/mysql-docker-containers-understanding-basics)
